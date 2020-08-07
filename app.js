@@ -1,5 +1,9 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
+
+const User = require("./models/user");
+const authRoutes = require("./routes/authRoutes");
 
 const app = express();
 
@@ -15,4 +19,30 @@ app.use((req, res, next) => {
   next();
 });
 
-app.listen(5000);
+// app.use((req, res, next) => {
+//   const email = req.body.email.value;
+//   User.findOne({ email: email })
+//   then(user => {
+
+//   })
+// });
+
+app.use("/", authRoutes);
+
+app.use((error, req, res, next) => {
+  if (res.headerSent) {
+    return next(error);
+  }
+  res
+    .status(error.code || 500)
+    .json({ message: error.message || "An unknown error occured!" });
+});
+
+mongoose
+  .connect(
+    "mongodb+srv://vishal:vishaldogra1598@cluster0-vqiee.mongodb.net/nexter"
+  )
+  .then(() => {
+    app.listen(5000);
+  })
+  .catch((err) => console.log(err));
