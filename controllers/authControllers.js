@@ -25,9 +25,9 @@ exports.postSignup = (req, res, next) => {
           });
 
           user.save();
-          return res.status(201).json({ user: user });
+          return res.status(201).json({ message: "User added" });
         })
-        .catch((err) => {
+        .catch(() => {
           throw new HttpError("Something went wrong", 500);
         });
     })
