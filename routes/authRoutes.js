@@ -10,6 +10,12 @@ const authControllers = require("../controllers/authControllers");
 router.post(
   "/signup",
   [
+    body("confirmPassword").custom((value, { req }) => {
+      if (value != req.body.password) {
+        throw new Error("Password confirmation does not match password");
+      }
+      return true;
+    }),
     body("email")
       .isEmail()
       .normalizeEmail()
@@ -22,13 +28,7 @@ router.post(
             );
           }
         });
-      }),
-    body("confirmPassword").custom((value, { req }) => {
-      if (value != req.body.password) {
-        throw new Error("Password confirmation does not match password");
-      }
-      return true;
-    }),
+      })
   ],
   authControllers.postSignup
 );

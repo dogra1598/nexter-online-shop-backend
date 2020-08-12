@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 
 const User = require("./models/user");
 const authRoutes = require("./routes/authRoutes");
+const shopRoutes = require("./routes/shopRoutes");
 
 const app = express();
 
@@ -28,6 +29,7 @@ app.use((req, res, next) => {
 // });
 
 app.use("/", authRoutes);
+app.use("/", shopRoutes);
 
 app.use((error, req, res, next) => {
   if (res.headerSent) {
@@ -35,7 +37,7 @@ app.use((error, req, res, next) => {
   }
   res
     .status(error.code || 500)
-    .json({ message: error.message || "An unknown error occured!" });
+    .json({ message: error.message || "An unknown error occured!", error: true });
 });
 
 mongoose
