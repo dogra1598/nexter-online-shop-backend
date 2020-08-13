@@ -1,5 +1,7 @@
 const Product = require("../models/product");
+const User = require("../models/user");
 const HttpError = require("../models/httpError");
+const { use } = require("../routes/shopRoutes");
 
 exports.getIndex = (req, res, next) => {
   Product.find()
@@ -25,5 +27,32 @@ exports.getProduct = (req, res, next) => {
     })
     .catch(() => {
       throw new HttpError("Something went wrong", 500);
+    });
+};
+
+exports.postCart = (req, res, next) => {
+  const productId = req.body.productId;
+  const userId = req.body.userId;
+
+  Product.findById({ _id: productId })
+    .then((product) => {
+      User.findById(userId)
+        .then((user) => {
+          return user.addToCart(product);
+        })
+        .then(() => {
+          return res
+            .status(201)
+            .json({
+              message: "Product successfully added to cart.",
+              error: false,
+            });
+        })
+        .catch(() => {
+          return next(new HttpError("Something went wrong.", 500));
+        });
+    })
+    .catch(() => {
+      return next(new HttpError("Something went wrong.", 500));
     });
 };

@@ -3,6 +3,7 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 
 const User = require("./models/user");
+const HttpError = require("./models/httpError");
 const authRoutes = require("./routes/authRoutes");
 const shopRoutes = require("./routes/shopRoutes");
 
@@ -20,14 +21,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// app.use((req, res, next) => {
-//   const email = req.body.email.value;
-//   User.findOne({ email: email })
-//   then(user => {
-
-//   })
-// });
-
 app.use("/", authRoutes);
 app.use("/", shopRoutes);
 
@@ -37,7 +30,10 @@ app.use((error, req, res, next) => {
   }
   res
     .status(error.code || 500)
-    .json({ message: error.message || "An unknown error occured!", error: true });
+    .json({
+      message: error.message || "An unknown error occured!",
+      error: true,
+    });
 });
 
 mongoose
