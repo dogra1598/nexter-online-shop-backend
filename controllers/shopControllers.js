@@ -41,18 +41,63 @@ exports.postCart = (req, res, next) => {
           return user.addToCart(product);
         })
         .then(() => {
-          return res
-            .status(201)
-            .json({
-              message: "Product successfully added to cart.",
-              error: false,
-            });
+          return res.status(201).json({
+            message: "Product successfully added to cart.",
+            error: false,
+          });
         })
         .catch(() => {
           return next(new HttpError("Something went wrong.", 500));
         });
     })
     .catch(() => {
+      return next(new HttpError("Something went wrong.", 500));
+    });
+};
+
+exports.getCart = (req, res, next) => {
+  const userId = req.params.userId;
+
+  User.findById(userId)
+    .then((user) => {
+      user
+        .populate("cart.items.productId")
+        .execPopulate()
+        .then((user) => {
+          const products = user.cart.items;
+
+          let totalPrice = 0;
+          products.forEach((product) => {
+            totalPrice += product.productId.price * product.quantity;
+          });
+
+          res.status(200).json({ products: products, totalPrice: totalPrice });
+        })
+        .catch(() => {
+          return next(new HttpError("Something went wrong.", 500));
+        });
+    })
+    .catch(() => {
+      return next(new HttpError("Something went wrong.", 500));
+    });
+};
+
+exports.postDeleteFromCart = (req, res, next) => {
+  const userId = req.params.userId;
+  const productId = req.params.productId;
+
+  User.findById(userId)
+    .then((user) => {
+      user
+        .deleteFromCart(productId)
+        .then(() => {
+          return res.status(201).json({ message: "product delete successfully.", error: false });
+        })
+        .catch(() => {
+          return next(new HttpError("Something went wrong.", 500));
+        });
+    })
+    .catch((err) => {
       return next(new HttpError("Something went wrong.", 500));
     });
 };

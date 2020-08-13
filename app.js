@@ -21,8 +21,8 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use("/", authRoutes);
-app.use("/", shopRoutes);
+app.use(authRoutes);
+app.use(shopRoutes);
 
 app.use((error, req, res, next) => {
   if (res.headerSent) {
