@@ -1,7 +1,7 @@
 const Product = require("../models/product");
 const User = require("../models/user");
 const HttpError = require("../models/httpError");
-const { use } = require("../routes/shopRoutes");
+const Order = require("../models/order");
 
 exports.getIndex = (req, res, next) => {
   Product.find()
@@ -91,11 +91,90 @@ exports.postDeleteFromCart = (req, res, next) => {
       user
         .deleteFromCart(productId)
         .then(() => {
-          return res.status(201).json({ message: "product delete successfully.", error: false });
+          return res
+            .status(201)
+            .json({ message: "product delete successfully.", error: false });
         })
         .catch(() => {
           return next(new HttpError("Something went wrong.", 500));
         });
+    })
+    .catch((err) => {
+      return next(new HttpError("Something went wrong.", 500));
+    });
+};
+
+exports.postDecreaseQuantityFromCart = (req, res, next) => {
+  const userId = req.params.userId;
+  const productId = req.params.productId;
+
+  Product.findById({ _id: productId })
+    .then((product) => {
+      User.findById(userId)
+        .then((user) => {
+          return user.decreaseQuantity(product);
+        })
+        .then(() => {
+          return res.status(201).json({
+            message: "Product successfully added to cart.",
+            error: false,
+          });
+        })
+        .catch(() => {
+          return next(new HttpError("Something went wrong.", 500));
+        });
+    })
+    .catch(() => {
+      return next(new HttpError("Something went wrong.", 500));
+    });
+};
+
+exports.postOrder = (req, res, next) => {
+  const userId = req.params.userId;
+
+  User.findById(userId)
+    .then((user) => {
+      user
+        .populate("cart.items.productId")
+        .execPopulate()
+        .then((user) => {
+          const products = user.cart.items.map((i) => {
+            return { quantity: i.quantity, product: { ...i.productId._doc } };
+          });
+
+          const order = new Order({
+            products: products,
+            user: {
+              userId: user._id,
+              email: user.email,
+            },
+          });
+
+          user.cart.items = [];
+          user.save();
+
+          return order.save();
+        })
+        .then(() => {
+          return res
+            .status(200)
+            .json({ message: "order added successfully", error: false });
+        })
+        .catch((err) => {
+          return next(new HttpError("Something went wrong.", 500));
+        });
+    })
+    .catch((err) => {
+      return next(new HttpError("Something went wrong.", 500));
+    });
+};
+
+exports.getOrders = (req, res, next) => {
+  const userId = req.params.userId;
+
+  Order.find({ "user.userId": userId })
+    .then((orders) => {
+      res.status(200).json({ orders: orders });
     })
     .catch((err) => {
       return next(new HttpError("Something went wrong.", 500));

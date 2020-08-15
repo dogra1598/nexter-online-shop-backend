@@ -14,5 +14,11 @@ router.get('/cart/:userId', shopControllers.getCart);
 
 router.delete('/deleteFromCart/:userId/:productId', shopControllers.postDeleteFromCart);
 
+router.delete('/decreaseQuantity/:userId/:productId', shopControllers.postDecreaseQuantityFromCart);
+
+router.post('/orders/:userId', shopControllers.postOrder);
+
+router.get('/orders/:userId', shopControllers.getOrders);
+
 
 module.exports = router;
