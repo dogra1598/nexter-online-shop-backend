@@ -93,7 +93,7 @@ exports.postDeleteFromCart = (req, res, next) => {
         .then(() => {
           return res
             .status(201)
-            .json({ message: "product delete successfully.", error: false });
+            .json({ message: "product delete successfully from cart.", error: false });
         })
         .catch(() => {
           return next(new HttpError("Something went wrong.", 500));
