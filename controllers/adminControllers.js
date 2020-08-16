@@ -68,9 +68,11 @@ exports.patchEditProduct = (req, res, next) => {
   Product.findById(productId)
     .then((product) => {
       if (product.userId.toString() !== userId.toString()) {
-        return res
-          .status(404)
-          .json({ message: "Sorry can't update the product.", error: true });
+        return next(new HttpError("You are not allowded to edit this product.", 401));
+      }
+
+      if(product.userId.toString() !== req.userData.userId) {
+        return next(new HttpError("You are not allowded to edit this product.", 401));
       }
       product.title = title;
       product.price = price;
@@ -93,7 +95,12 @@ exports.patchEditProduct = (req, res, next) => {
 
 exports.postDeleteProduct = (req, res, next) => {
   const productId = req.params.productId;
+  const userId = req.params.userId;
   let imagePath;
+
+  if(userId !== req.userData.userId) {
+    return next(new HttpError("You are not allowded to delete this product.", 401));
+  }
 
   Product.findById({ _id: productId })
     .then((product) => {

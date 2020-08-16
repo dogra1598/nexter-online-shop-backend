@@ -15,15 +15,18 @@ const app = express();
 
 app.use(bodyParser.json());
 
-app.use("/uploads/images", express.static(path.join("uploads", "images")))
+app.use("/uploads/images", express.static(path.join("uploads", "images")));
 
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
     "Access-Control-Allow-Methods",
-    "GET, POST, PUT, DELETE, PATCH, OPTIONS"
+    "GET, POST, DELETE, PATCH"
   );
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  );
   next();
 });
 
@@ -32,7 +35,7 @@ app.use(shopRoutes);
 app.use("/admin", adminRoutes);
 
 app.use((error, req, res, next) => {
-  if(req.file) {
+  if (req.file) {
     fs.unlink(req.file.path, (err) => {
       console.log(err);
     });

@@ -3,8 +3,11 @@ const { body } = require("express-validator/check");
 
 const adminControllers = require("../controllers/adminControllers");
 const fileUpload = require("../middlewares/fileUpload");
+const checkAuth = require("../middlewares/checkAuth");
 
 const router = express.Router();
+
+router.use(checkAuth);
 
 router.post(
   "/addProduct",
@@ -39,6 +42,6 @@ router.patch(
     ],
     adminControllers.patchEditProduct);
 
-router.delete('/deleteProduct/:productId', adminControllers.postDeleteProduct);
+router.delete('/deleteProduct/:userId/:productId', adminControllers.postDeleteProduct);
 
 module.exports = router;

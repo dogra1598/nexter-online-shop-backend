@@ -34,6 +34,10 @@ exports.postCart = (req, res, next) => {
   const productId = req.body.productId;
   const userId = req.body.userId;
 
+  if(userId !== req.userData.userId) {
+    return next(new HttpError("You are not allowded to add products to cart.", 401));
+  }
+
   Product.findById({ _id: productId })
     .then((product) => {
       User.findById(userId)
@@ -57,6 +61,10 @@ exports.postCart = (req, res, next) => {
 
 exports.getCart = (req, res, next) => {
   const userId = req.params.userId;
+
+  if(userId !== req.userData.userId) {
+    return next(new HttpError("You are not allowded to access the cart.", 401));
+  }
 
   User.findById(userId)
     .then((user) => {
@@ -86,6 +94,10 @@ exports.postDeleteFromCart = (req, res, next) => {
   const userId = req.params.userId;
   const productId = req.params.productId;
 
+  if(userId !== req.userData.userId) {
+    return next(new HttpError("You are not allowded to delete product(s) from cart.", 401));
+  }
+
   User.findById(userId)
     .then((user) => {
       user
@@ -107,6 +119,10 @@ exports.postDeleteFromCart = (req, res, next) => {
 exports.postDecreaseQuantityFromCart = (req, res, next) => {
   const userId = req.params.userId;
   const productId = req.params.productId;
+
+  if(userId !== req.userData.userId) {
+    return next(new HttpError("You are not allowded to decrease quantity of the product in cart.", 401));
+  }
 
   Product.findById({ _id: productId })
     .then((product) => {
@@ -131,6 +147,10 @@ exports.postDecreaseQuantityFromCart = (req, res, next) => {
 
 exports.postOrder = (req, res, next) => {
   const userId = req.params.userId;
+
+  if(userId !== req.userData.userId) {
+    return next(new HttpError("You are not allowded to place order.", 401));
+  }
 
   User.findById(userId)
     .then((user) => {
@@ -171,6 +191,10 @@ exports.postOrder = (req, res, next) => {
 
 exports.getOrders = (req, res, next) => {
   const userId = req.params.userId;
+
+  if(userId !== req.userData.userId) {
+    return next(new HttpError("You are not allowded to see the placed order(s).", 401));
+  }
 
   Order.find({ "user.userId": userId })
     .then((orders) => {

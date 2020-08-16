@@ -1,5 +1,6 @@
 const bcrypt = require("bcryptjs");
 const { validationResult } = require("express-validator");
+const jwt = require("jsonwebtoken");
 
 const User = require("../models/user");
 const HttpError = require("../models/httpError");
@@ -37,6 +38,7 @@ exports.postSignup = (req, res, next) => {
 exports.postLogin = (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
+  let currUser;
 
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -49,14 +51,28 @@ exports.postLogin = (req, res, next) => {
         new HttpError("Sorry User with this email does not exists.", 422)
       );
     }
-
+    currUser = user;
     bcrypt
       .compare(password, user.password)
       .then((result) => {
         if (result) {
-          return res
-            .status(200)
-            .json({ user: user.toObject({ getters: true }), error: false });
+          let token;
+          try {
+            token = jwt.sign(
+              { userId: currUser._id, email: currUser.email },
+              "supersupersecret",
+              { expiresIn: "1h" }
+            );
+          } catch (error) {
+            return next(new HttpError("Login failed.", 401));
+          }
+
+          return res.status(200).json({
+            userId: currUser._id,
+            email: currUser.email,
+            token: token,
+            error: false,
+          });
         }
         return next(new HttpError("Sorry Password does not match.", 401));
       })
