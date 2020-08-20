@@ -60,7 +60,7 @@ exports.postLogin = (req, res, next) => {
           try {
             token = jwt.sign(
               { userId: currUser._id, email: currUser.email },
-              "supersupersecret",
+              process.env.JET_KEY,
               { expiresIn: "1h" }
             );
           } catch (error) {

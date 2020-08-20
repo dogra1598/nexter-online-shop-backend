@@ -1,0 +1,8 @@
+{
+    "env" : {
+        "DB_USER": "vishal",
+        "DB_PASSWORD": "vishaldogra1598",
+        "DB_NAME": "nexter",
+        "JWT_KEY": "tr3462d9h#219_83hd4hc62"
+    }
+}
