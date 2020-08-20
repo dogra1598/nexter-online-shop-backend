@@ -1,3 +1,8 @@
+const path = require("path");
+const fs = require("fs");
+
+const PDFDocument = require("pdfkit");
+
 const Product = require("../models/product");
 const User = require("../models/user");
 const HttpError = require("../models/httpError");
@@ -34,8 +39,10 @@ exports.postCart = (req, res, next) => {
   const productId = req.body.productId;
   const userId = req.body.userId;
 
-  if(userId !== req.userData.userId) {
-    return next(new HttpError("You are not allowded to add products to cart.", 401));
+  if (userId !== req.userData.userId) {
+    return next(
+      new HttpError("You are not allowded to add products to cart.", 401)
+    );
   }
 
   Product.findById({ _id: productId })
@@ -62,7 +69,7 @@ exports.postCart = (req, res, next) => {
 exports.getCart = (req, res, next) => {
   const userId = req.params.userId;
 
-  if(userId !== req.userData.userId) {
+  if (userId !== req.userData.userId) {
     return next(new HttpError("You are not allowded to access the cart.", 401));
   }
 
@@ -94,8 +101,10 @@ exports.postDeleteFromCart = (req, res, next) => {
   const userId = req.params.userId;
   const productId = req.params.productId;
 
-  if(userId !== req.userData.userId) {
-    return next(new HttpError("You are not allowded to delete product(s) from cart.", 401));
+  if (userId !== req.userData.userId) {
+    return next(
+      new HttpError("You are not allowded to delete product(s) from cart.", 401)
+    );
   }
 
   User.findById(userId)
@@ -103,15 +112,16 @@ exports.postDeleteFromCart = (req, res, next) => {
       user
         .deleteFromCart(productId)
         .then(() => {
-          return res
-            .status(201)
-            .json({ message: "product delete successfully from cart.", error: false });
+          return res.status(201).json({
+            message: "product delete successfully from cart.",
+            error: false,
+          });
         })
         .catch(() => {
           return next(new HttpError("Something went wrong.", 500));
         });
     })
-    .catch((err) => {
+    .catch(() => {
       return next(new HttpError("Something went wrong.", 500));
     });
 };
@@ -120,8 +130,13 @@ exports.postDecreaseQuantityFromCart = (req, res, next) => {
   const userId = req.params.userId;
   const productId = req.params.productId;
 
-  if(userId !== req.userData.userId) {
-    return next(new HttpError("You are not allowded to decrease quantity of the product in cart.", 401));
+  if (userId !== req.userData.userId) {
+    return next(
+      new HttpError(
+        "You are not allowded to decrease quantity of the product in cart.",
+        401
+      )
+    );
   }
 
   Product.findById({ _id: productId })
@@ -148,7 +163,7 @@ exports.postDecreaseQuantityFromCart = (req, res, next) => {
 exports.postOrder = (req, res, next) => {
   const userId = req.params.userId;
 
-  if(userId !== req.userData.userId) {
+  if (userId !== req.userData.userId) {
     return next(new HttpError("You are not allowded to place order.", 401));
   }
 
@@ -184,7 +199,7 @@ exports.postOrder = (req, res, next) => {
           return next(new HttpError("Something went wrong.", 500));
         });
     })
-    .catch((err) => {
+    .catch(() => {
       return next(new HttpError("Something went wrong.", 500));
     });
 };
@@ -192,15 +207,17 @@ exports.postOrder = (req, res, next) => {
 exports.getOrders = (req, res, next) => {
   const userId = req.params.userId;
 
-  if(userId !== req.userData.userId) {
-    return next(new HttpError("You are not allowded to see the placed order(s).", 401));
+  if (userId !== req.userData.userId) {
+    return next(
+      new HttpError("You are not allowded to see the placed order(s).", 401)
+    );
   }
 
   Order.find({ "user.userId": userId })
     .then((orders) => {
       res.status(200).json({ orders: orders });
     })
-    .catch((err) => {
+    .catch(() => {
       return next(new HttpError("Something went wrong.", 500));
     });
 };
